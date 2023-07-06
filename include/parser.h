@@ -2,7 +2,7 @@
 #define PARSER_H
 
 #include "iostream"
-#include "Network.h"
+#include "network.h"
 
 Network * parse_network(char *);
 

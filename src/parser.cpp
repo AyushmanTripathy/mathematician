@@ -18,6 +18,8 @@ Network * parse_network(char * filepath) {
 
   for (int i = 0; i < layer_count; i++) {
     network_file >> curr_count >> prev_count;
+    if (i == 0) net->input_node_count = prev_count;
+
     Layer l = Layer(curr_count, prev_count);
 
     for (int x = 0; x < curr_count; x++) {
@@ -28,9 +30,9 @@ Network * parse_network(char * filepath) {
       l.add_node(n);
     }
 
-    cout << curr_count << endl;
     net->add_layer(l);
   }
+  net->output_node_count = curr_count;
 
   network_file.close();
   return net;

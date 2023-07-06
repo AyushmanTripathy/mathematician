@@ -10,7 +10,7 @@ ofstream output_file;
 int input_count;
 int output_count;
 
-int hidden_layer_count = 3;
+int hidden_layer_count = 1;
 int hidden_layer_size = 3;
 
 double random_double(int max) {
@@ -21,8 +21,8 @@ void create_network() {
   int curr_count = hidden_layer_size, prev_count = input_count;
   output_file << hidden_layer_count << endl;
 
-  for (int i = 0; i < hidden_layer_count; i++) {
-    if (i == hidden_layer_count - 1) curr_count = output_count;
+  for (int i = 0; i <= hidden_layer_count; i++) {
+    if (i == hidden_layer_count) curr_count = output_count;
     output_file << curr_count << " " << prev_count << endl;
 
     for (int x = 0; x < curr_count; x++) {

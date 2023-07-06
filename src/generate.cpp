@@ -8,7 +8,7 @@ ofstream output_file;
 
 const int input_count = 2;
 const int output_count = 2;
-const int range[] = { 1, 4 };
+const int range[] = { 1, 5 };
 
 void relation(int * inputs) {
   if (inputs[0] > inputs[1]) output_file << "1 " << "0";

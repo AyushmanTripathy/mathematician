@@ -24,7 +24,7 @@ create: build $(DATASET) src/create.cpp
 
 run: build src/run.cpp $(DATASET) $(NETWORK)
 	@echo "compiling $(RUN_EXEC)"
-	@$(CC) $(CFLAGS) src/parser.cpp src/run.cpp -o $(RUN_EXEC)
+	@$(CC) $(CFLAGS) src/network.cpp src/parser.cpp src/run.cpp -o $(RUN_EXEC)
 	@echo "running network $(NETWORK)"
 	@$(RUN_EXEC) $(NETWORK)
 	@echo "finished running"
