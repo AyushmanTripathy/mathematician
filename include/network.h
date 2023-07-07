@@ -1,11 +1,19 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-class Layer;
+#include "fstream"
+
+typedef struct {
+  double ** inputs;
+  double ** outputs;
+  int length;
+} Dataset;
 
 class Node {
   private:
-    int expected_input_count;
+    double bias_gradient;
+    double * weights_gradient;
+    int input_count;
 
   public:
     double bias;
@@ -14,8 +22,12 @@ class Node {
     Node() {};
     Node(int input_count) {
       this->weights = new double[input_count];
+      this->weights_gradient = new double[input_count];
+      this->input_count = input_count;
     };
     double evaluate(double *, int);
+    void learn(double, Dataset *);
+    void apply_gradient(double);
 };
 
 class Layer {
@@ -42,15 +54,18 @@ class Layer {
       this->nodes_index++;
     }
     void evaluate(double *, double *);
+    void stringify(std::ofstream&);
+    void learn(double, Dataset *);
+    void apply_gradient(double);
 };
 
 class Network {
   private:
-   int layer_index;
-   int layer_count;
-   Layer * layers;
+    int layer_index;
+    Layer * layers;
 
   public:
+    int layer_count;
     int input_node_count;
     int output_node_count;
 
@@ -68,6 +83,10 @@ class Network {
     }
 
     double * evaluate(double *, int);
+    double cost(Dataset *);
+    void learn(Dataset *);
+    void stringify(std::ofstream&);
+    void apply_gradient(double);
 };
 
 #endif

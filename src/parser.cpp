@@ -5,9 +5,9 @@
 
 using namespace std;
 
-ifstream network_file;
-
 Network * parse_network(char * filepath) {
+  ifstream network_file;
+
   network_file.open(filepath);
   int layer_count;
   network_file >> layer_count;
@@ -36,4 +36,11 @@ Network * parse_network(char * filepath) {
 
   network_file.close();
   return net;
+}
+
+void stringify_network(Network * net, char * filepath) {
+  ofstream network_file;
+  network_file.open(filepath);
+  net->stringify(network_file);
+  network_file.close();
 }
