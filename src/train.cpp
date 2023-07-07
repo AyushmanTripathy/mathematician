@@ -47,9 +47,9 @@ int main(int argc, char ** argv) {
   net = parse_network(argv[1]);
   Dataset * data = load_dataset(argv[2]);
 
-  for(int iter = 0; iter < 50; iter++) {
+  for(int iter = 0; iter < 100; iter++) {
     net->learn(data);
-    net->apply_gradient(0.1);
+    net->apply_gradient(1);
     cout << net->cost(data) << endl;
   }
   stringify_network(net, argv[1]);

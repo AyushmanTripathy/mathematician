@@ -11,7 +11,7 @@ const int output_count = 2;
 const int range[] = { 1, 5 };
 
 void relation(int * inputs) {
-  if (inputs[0] > inputs[1]) output_file << "1 " << "0";
+  if (inputs[0] < inputs[1]) output_file << "1 " << "0";
   else output_file << "0 " << "1";
 }
 
