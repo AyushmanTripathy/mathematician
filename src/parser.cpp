@@ -9,10 +9,10 @@ Network * parse_network(char * filepath) {
   ifstream network_file;
 
   network_file.open(filepath);
-  int layer_count;
-  network_file >> layer_count;
+  int layer_count, bit_length;
+  network_file >> layer_count >> bit_length;
 
-  Network * net = new Network(layer_count);
+  Network * net = new Network(layer_count, bit_length);
 
   int curr_count, prev_count;
 

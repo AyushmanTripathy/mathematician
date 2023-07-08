@@ -66,11 +66,13 @@ class Network {
 
   public:
     int layer_count;
+    int bit_length;
     int input_node_count;
     int output_node_count;
 
-    Network(int layer_count) {
+    Network(int layer_count, int bit_length) {
       this->layer_count = layer_count;
+      this->bit_length = bit_length;
       this->layer_index = 0;
       this->layers = new Layer[layer_count];
     };

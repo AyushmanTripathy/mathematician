@@ -7,8 +7,8 @@ using namespace std;
 extern Network * net;
 const double h = 0.001;
 
-double sigmod(double x) {
-  return x / (1 + abs(x));
+double activation_function(double x) {
+  return 1 / (1 + exp(x));
 }
 
 double Node::evaluate(double * input, int length) {
@@ -16,7 +16,7 @@ double Node::evaluate(double * input, int length) {
   for (int i = 0; i < length; i++) {
     x += this->weights[i] * input[i];
   }
-  return sigmod(x + this->bias);
+  return activation_function(x + this->bias);
 }
 
 void Node::apply_gradient(double learn_rate) {
@@ -98,6 +98,7 @@ void Network::apply_gradient(double learn_rate) {
   for (int i = 0; i < this->layer_count; i++)
     this->layers[i].apply_gradient(learn_rate);
 }
+
 void Network::learn(Dataset * data) {
   double cost = this->cost(data);
   for (int i = 0; i < this->layer_count; i++)
@@ -105,7 +106,7 @@ void Network::learn(Dataset * data) {
 }
 
 void Network::stringify(ofstream& output_file) {
-  output_file << this->layer_count << endl;
+  output_file << this->layer_count << " " << this->bit_length << endl;
   for (int i = 0; i < this->layer_count; i++)
     this->layers[i].stringify(output_file);
 }
