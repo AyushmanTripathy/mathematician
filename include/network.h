@@ -9,10 +9,17 @@ typedef struct {
   int length;
 } Dataset;
 
+class Node;
+
 class Node {
   private:
     double bias_gradient;
     double * weights_gradient;
+
+    double node_value;
+    double activation_value;
+    double weighted_input;
+
     int input_count;
 
   public:
@@ -22,16 +29,23 @@ class Node {
     Node() {};
     Node(int input_count) {
       this->weights = new double[input_count];
-      this->weights_gradient = new double[input_count];
       this->input_count = input_count;
+
+      this->weights_gradient = new double[input_count];
+      for (int i = 0; i < input_count; i++)
+        this->weights_gradient[i] = 0;
+      this->bias_gradient = 0;
     };
-    double evaluate(double *, int);
-    void learn(double, Dataset *);
+    double evaluate(double *);
+    void update_gradient(double *);
+    void update_node_value(double);
+    void update_node_value(int, Node *, int);
     void apply_gradient(double);
 };
 
 class Layer {
   private:
+    double * input_activations;
     int nodes_index;
     Node * nodes;
 
@@ -43,6 +57,7 @@ class Layer {
     Layer(int node_count, int input_count) {
       this->node_count = node_count;
       this->input_count = input_count;
+      this->input_activations = new double[input_count];
       this->nodes = new Node[node_count];
       this->nodes_index = 0;
     };
@@ -55,7 +70,10 @@ class Layer {
     }
     void evaluate(double *, double *);
     void stringify(std::ofstream&);
-    void learn(double, Dataset *);
+
+    void learn(double *);
+    void learn(Layer&);
+
     void apply_gradient(double);
 };
 

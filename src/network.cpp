@@ -5,44 +5,39 @@
 using namespace std;
 
 extern Network * net;
-const double h = 0.001;
+const double h = 0.0000001;
 
 double activation_function(double x) {
-  return 1 / (1 + exp(x));
+  return 1 / (1 + exp(-1 * x));
 }
 
-double Node::evaluate(double * input, int length) {
+double Node::evaluate(double * input) {
   double x = 0;
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < this->input_count; i++) {
     x += this->weights[i] * input[i];
   }
-  return activation_function(x + this->bias);
+
+  x += this->bias;
+  this->weighted_input = x;
+  this->activation_value = activation_function(x);
+
+  return this->activation_value;
 }
 
 void Node::apply_gradient(double learn_rate) {
   for (int i = 0; i < this->input_count; i++) {
     this->weights[i] -= this->weights_gradient[i] * learn_rate;
+    this->weights_gradient[i] = 0;
   }
   this->bias -= this->bias_gradient * learn_rate;
-}
-
-void Node::learn(double cost, Dataset * data) {
-  for (int i = 0; i < this->input_count; i++) {
-    this->weights[i] += h;
-    double slope = (net->cost(data) - cost) / h;
-    this->weights[i] -= h;
-    this->weights_gradient[i] = slope;
-  }
-
-  this->bias += h;
-  double slope = (net->cost(data) - cost) / h;
-  this->bias -= h;
-  this->bias_gradient = slope;
+  this->bias_gradient = 0;
 }
 
 void Layer::evaluate(double * input, double * output) {
+  for (int i = 0; i < this->input_count; i++)
+    this->input_activations[i] = input[i];
   for (int i = 0; i < this->node_count; i++)
-    output[i] = this->nodes[i].evaluate(input, this->input_count);
+    output[i] = this->nodes[i].evaluate(input);
 }
 
 void Layer::apply_gradient(double learn_rate) {
@@ -50,9 +45,43 @@ void Layer::apply_gradient(double learn_rate) {
     this->nodes[i].apply_gradient(learn_rate);
 }
 
-void Layer::learn(double cost, Dataset * data) {
-  for (int i = 0; i < this->node_count; i++)
-    this->nodes[i].learn(cost, data);
+void Node::update_gradient(double * input_activations) {
+  for (int i = 0; i < this->input_count; i++) {
+    this->weights_gradient[i] += input_activations[i] * this->node_value;
+  }
+
+  this->bias_gradient += 1 * this->node_value;
+}
+
+// for output layer
+void Layer::learn(double * expected_outputs) {
+  for (int i = 0; i < this->node_count; i++) {
+    this->nodes[i].update_node_value(expected_outputs[i]);
+    this->nodes[i].update_gradient(this->input_activations);
+  }
+}
+
+// for output layer
+void Node::update_node_value(double expected_output) {
+  this->node_value = 2 * (this->activation_value - expected_output);
+  this->node_value *= this->activation_value * (1 - this->activation_value);
+}
+
+// for middle layers
+void Layer::learn(Layer& output_layer) {
+  for (int i = 0; i < this->node_count; i++) {
+    this->nodes[i].update_node_value(i, output_layer.nodes, output_layer.node_count);
+    this->nodes[i].update_gradient(this->input_activations);
+  }
+}
+
+// for middle layers
+void Node::update_node_value(int self_index, Node * output_nodes, int output_node_count) {
+  this->node_value = 0;
+  for (int i = 0; i < output_node_count; i++) {
+    this->node_value += output_nodes[i].weights[self_index] * output_nodes[i].node_value;
+  }
+  this->node_value *= this->activation_value * (1 - this->activation_value);
 }
 
 void Layer::stringify(ofstream& output_file) {
@@ -66,8 +95,8 @@ void Layer::stringify(ofstream& output_file) {
 }
 
 double * Network::evaluate(double * inputs, int input_count) {
-  double * output = new double[10];
-  double * prev = new double[10];
+  double * output = new double[20];
+  double * prev = new double[20];
 
   for (int i = 0; i < this->layer_count; i++) {
     this->layers[i].evaluate(i == 0 ? inputs: prev, output);
@@ -100,9 +129,15 @@ void Network::apply_gradient(double learn_rate) {
 }
 
 void Network::learn(Dataset * data) {
-  double cost = this->cost(data);
-  for (int i = 0; i < this->layer_count; i++)
-    this->layers[i].learn(cost, data);
+  for (int i = 0; i < data->length; i++) {
+    this->evaluate(data->inputs[i], this->input_node_count);
+
+    Layer output_layer = this->layers[this->layer_count - 1];
+    output_layer.learn(data->outputs[i]);
+    for (int x = layer_count - 2; x >= 0; x--)
+      this->layers[x].learn(this->layers[x + 1]);
+  }
+  this->apply_gradient(1.0 / data->length);
 }
 
 void Network::stringify(ofstream& output_file) {

@@ -21,12 +21,12 @@ int main(int argc, char ** argv) {
 
   generate(dataset_location);
   while(1) {
-    for (int iter = 0; iter < 20; iter++) {
+    for (int iter = 0; iter < 100; iter++) {
       double avg = 0;
       for(int i = 1; i <= batch_count; i++) {
         Dataset * data = load_dataset(dataset_location, i);
+
         net->learn(data);
-        net->apply_gradient(1);
         avg += net->cost(data);
         free_dataset(data);
       }
